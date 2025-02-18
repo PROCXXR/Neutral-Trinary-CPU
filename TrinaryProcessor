@@ -1,0 +1,38 @@
+import random
+
+class TrinaryProcessor:
+    def __init__(self):
+        self.state = None  # Holds the current state
+
+    def set_state(self, value):
+        """
+        Sets the state of the processing unit.
+        Allowed values: '+x', '-y', '+/-xy'
+        """
+        if value in ['+x', '-y', '+/-xy']:
+            self.state = value
+        else:
+            raise ValueError("Invalid state. Allowed states: '+x', '-y', '+/-xy'")
+
+    def resolve_state(self):
+        """
+        Resolves the unstable '+/-xy' state probabilistically.
+        50% chance to become '+x', 50% chance to become '-y'.
+        """
+        if self.state == '+/-xy':
+            self.state = random.choice(['+x', '-y'])
+        return self.state
+    
+    def process(self):
+        """
+        Processes the current state and returns the resolved state.
+        """
+        return self.resolve_state() if self.state == '+/-xy' else self.state
+
+# Example usage:
+if __name__ == "__main__":
+    processor = TrinaryProcessor()
+    processor.set_state('+/-xy')
+    print("Initial state:", processor.state)
+    resolved_state = processor.process()
+    print("Resolved state:", resolved_state)
