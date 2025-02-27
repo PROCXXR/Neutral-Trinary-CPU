@@ -1,12 +1,19 @@
 import random
 
-class TrinaryProcessor:
-    def __init__(self):
+class NeutralTrinaryUnit:
+    def __init__(self, initial_state=None, seed=None):
+        """
+        Initializes the unit with an optional initial state.
+        """
         self.state = None  # Holds the current state
+        if seed is not None:
+            random.seed(seed)  # Ensures predictable randomness for testing
+        if initial_state:
+            self.set_state(initial_state)
 
     def set_state(self, value):
         """
-        Sets the state of the processing unit.
+        Sets the state of the unit.
         Allowed values: '+x', '-y', '+/-xy'
         """
         if value in ['+x', '-y', '+/-xy']:
@@ -17,10 +24,10 @@ class TrinaryProcessor:
     def resolve_state(self):
         """
         Resolves the unstable '+/-xy' state probabilistically.
-        50% chance to become '+x', 50% chance to become '-y'.
+        By default, 50% chance to become '+x', 50% chance to become '-y'.
         """
         if self.state == '+/-xy':
-            self.state = random.choice(['+x', '-y'])
+            self.state = random.choices(['+x', '-y'], weights=[0.5, 0.5])[0]
         return self.state
     
     def process(self):
@@ -31,8 +38,7 @@ class TrinaryProcessor:
 
 # Example usage:
 if __name__ == "__main__":
-    processor = TrinaryProcessor()
-    processor.set_state('+/-xy')
-    print("Initial state:", processor.state)
-    resolved_state = processor.process()
+    unit = NeutralTrinaryUnit(initial_state='+/-xy', seed=42)
+    print("Initial state:", unit.state)
+    resolved_state = unit.process()
     print("Resolved state:", resolved_state)
