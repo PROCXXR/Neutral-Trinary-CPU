@@ -1,40 +1,44 @@
-import random  
+import random
 
-class TrinaryUnit:     
-    def __init__(self):         
-        self.previous_data = None      
+class NeutralTrinaryUnit:
+    def __init__(self, initial_state=None, seed=None):
+        """
+        Initializes the unit with an optional initial state.
+        """
+        self.state = None  # Holds the current state
+        if seed is not None:
+            random.seed(seed)  # Ensures predictable randomness for testing
+        if initial_state:
+            self.set_state(initial_state)
 
-    def process_data(self, data):         
-        if data in ["10", "01", "11", "00"]:  # Neutral cases
-            new_data = random.choice([0, 1])  
-            
-            # Ensure the new data is not the same as the last result to avoid repetition
-            while new_data == self.previous_data:
-                new_data = random.choice([0, 1])
-                
-            data = new_data
-        
-        if data == 0:             
-            result = "Positive"         
-        elif data == 1:             
-            result = "Negative"         
-        else:             
-            raise ValueError("Invalid input data")      
-        
-        self.previous_data = data  # Store the last processed value
-        return result
+    def set_state(self, value):
+        """
+        Sets the state of the unit.
+        Allowed values: '0', '1', '0 or 1'
+        """
+        if value in ['0', '1', '0 or 1']:
+            self.state = value
+        else:
+            raise ValueError("Invalid state. Allowed states: '0', '1', '0 or 1'")
 
-    def run(self, data_stream):         
-        results = []         
-        for data in data_stream:             
-            result = self.process_data(data)
-            results.append(result)       
-        return results  
+    def resolve_state(self):
+        """
+        Resolves the unstable '0 or 1' state probabilistically.
+        By default, 50% chance to become '0', 50% chance to become '1'.
+        """
+        if self.state == '0 or 1':
+            self.state = random.choice(['0', '1'])
+        return self.state
+    
+    def process(self):
+        """
+        Processes the current state and returns the resolved state.
+        """
+        return self.resolve_state() if self.state == '0 or 1' else self.state
 
-# Example usage
-if __name__ == "__main__":     
-    trinary_unit = TrinaryUnit()     
-    data_stream = ["10", 0, 1, "00", "01", "11", 1, 0, "10"]     
-    results = trinary_unit.run(data_stream)     
-    print("Data Stream:", data_stream)     
-    print("Results:", results)
+# Example usage:
+if __name__ == "__main__":
+    unit = NeutralTrinaryUnit(initial_state='0 or 1', seed=42)
+    print("Initial state:", unit.state)
+    resolved_state = unit.process()
+    print("Resolved state:", resolved_state)
